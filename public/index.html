@@ -151,8 +151,138 @@
       );
     }
 
+    const EMOJI_LIST = [
+      // Nourriture & Boisson
+      '🍔', '🍕', '🌭', '🍟', '🌮', '🌯', '🥙', '🧆', '🍜', '🍝', '🍲', '🥘', '🍛', '🍣', '🍱', '🍚', '🥟', '🦞', '🦐', '🥠', '🥮', '🍢', '🥗', '🍖', '🍗', '🥓', '🥞', '🍞', '🥐', '🥖', '🧀', '🍰', '🎂', '🍮', '🍭', '🍬', '🍫', '🍿', '🍩', '🍪', '☕', '🍵', '🍶', '🍾', '🍷', '🍸', '🍹', '🍺', '🍻', '🥂', '🥃',
+      // Transport
+      '🚗', '🚕', '🚙', '🚌', '🚎', '🏎️', '🚓', '🚑', '🚒', '🚐', '🛻', '🚚', '🚛', '🚜', '🏍️', '🛵', '🦯', '🦽', '🦼', '🛺', '🚲', '🛴', '🛹', '🛼', '🚏', '⛽', '🚨', '🚔', '🚍', '🚘', '🚖', '🚡', '🚠', '🚟', '🚃', '🚋', '🚞', '🚝', '🚄', '🚅', '🚈', '🚂', '🚆', '🚇', '🚊', '🚉', '✈️', '🛫', '🛬', '🛰️', '💺', '🛶',
+      // Santé
+      '🏥', '⚕️', '💊', '💉', '🩸', '🧬', '🦷', '🦴', '🧠', '🫀', '🫁', '🧘', '🏃', '💪', '🤸', '🧖',
+      // Shopping
+      '🛍️', '🛒', '👔', '👗', '👠', '👡', '👢', '👞', '👟', '🥾', '👒', '🎩', '⛑️', '💼', '👜', '🎒', '🧳', '👓', '🕶️', '🥽', '⌚', '💍', '💎',
+      // Maison
+      '🏠', '🏡', '🏘️', '🏚️', '🏗️', '🏭', '🏢', '🏬', '🏣', '🏤', '🏥', '🏦', '🏨', '🏪', '🏫', '🏩', '💒', '🏛️', '⛪', '🕌', '🕍', '🛕', '🔧', '🔨', '⚒️', '🛠️', '⛏️', '🔩', '⚙️', '🧱', '⛓️', '🧲', '🔫', '💣', '🧨', '🪛', '🔐', '🔒', '🔓', '🔑', '🚪', '🪑', '🛋️', '🛏️', '🛌', '🧸', '🖼️', '🎁', '🎈', '🎏', '🎀', '🎎',
+      // Loisirs
+      '🎮', '🎯', '🎲', '♠️', '♥️', '♦️', '♣️', '🎭', '🎨', '🎬', '🎤', '🎧', '🎼', '🎹', '🥁', '🎷', '🎺', '🎸', '🎻', '🎲', '♟️', '🎪', '🎨', '🎭', '🎬',
+      // Sport
+      '⚽', '🏀', '🏈', '⚾', '🥎', '🎾', '🏐', '🏉', '🥏', '🎳', '🏓', '🏸', '🏒', '🏑', '🥍', '🏏', '🥅', '⛳', '⛸️', '🎣', '🎽', '🎿', '⛷️', '🏂', '🪂', '🏋️', '🤼', '🤸', '⛹️', '🤺', '🤾', '🏌️', '🏇', '🧘', '🏄', '🏊', '🤽', '🚣', '🧗', '🚴', '🚵', '🤹', '🎖️', '🏆', '🏅', '🥇', '🥈', '🥉',
+      // Emoji divers
+      '✅', '❌', '⚠️', '🔔', '📌', '📍', '🧿', '💡', '📱', '💻', '📺', '📷', '📹', '🎥', '🧮', '📊', '📈', '📉', '📓', '📔', '📒', '📕', '📖', '📝', '📚', '📙', '📘', '📗', '📎', '✂️', '✒️', '🖋️', '🖊️', '🖌️', '🖍️', '📐', '📏',
+      // Natura
+      '🌍', '🌎', '🌏', '🌑', '🌒', '🌓', '🌔', '🌕', '🌖', '🌗', '🌘', '⭐', '🌟', '✨', '⚡', '☄️', '💥', '🔥', '🌪️', '🌈', '☀️', '🌤️', '⛅', '🌥️', '☁️', '🌦️', '🌧️', '⛈️', '🌩️', '🌨️', '❄️', '☃️', '⛄', '🌬️', '💨', '💧', '💦', '☔',
+      // Animaux
+      '🐕', '🐶', '🐩', '🐈', '🐓', '🐣', '🐥', '🐦', '🐤', '🦆', '🦅', '🦉', '🦇', '🐺', '🐗', '🐴', '🦄', '🐝', '🐛', '🦋', '🐌', '🐞', '🐜', '🪰', '🐢', '🐍', '🦎', '🦖', '🦕', '🐙', '🦑', '🦐', '🦞', '🦀', '🐡', '🐠', '🐟', '🐬', '🐳', '🐋', '🦈', '🐊', '🐅', '🐆', '🦓', '🦍', '🦧', '🐘', '🦛', '🦏', '🐪', '🐫', '🦒', '🦘', '🐃', '🐂', '🐄', '🐎', '🐖', '🐏', '🐑', '🧸', '🐐', '🦌', '🐕', '🐩', '🦮', '🐈', '🐓', '🦃', '🦚', '🦜', '🦢', '🦗', '🥚', '🦟', '🪳', '🕷️', '🦂', '🐢', '🐍', '🦎', '🦖', '🦕', '🐙', '🦑', '🦐', '🦞', '🦀', '🐡', '🐠', '🐟', '🐬', '🐳', '🐋', '🦈', '🐊', '🐅', '🐆', '🦓', '🦍', '🦧', '🐘', '🦛', '🦏', '🐪', '🐫', '🦒', '🦘', '🐃', '🐂', '🐄', '🐎', '🐖', '🐏', '🐑', '🧸', '🐐', '🦌', '🐕', '🐩', '🦮', '🐈', '🐓', '🦃', '🦚', '🦜', '🦢', '🦗'
+    ];
+
     function TransactionsPage({ transactions, categories, onRefresh }) {
+      const [selectedTx, setSelectedTx] = useState(null);
+      const [splits, setSplits] = useState([]);
+      const [newCategoryName, setNewCategoryName] = useState('');
+      const [selectedEmoji, setSelectedEmoji] = useState('📂');
+      const [showNewCategoryForm, setShowNewCategoryForm] = useState(false);
+      const [localCategories, setLocalCategories] = useState(categories);
+
       const pending = transactions.filter(t => t.status === 'pending');
+      const categorized = transactions.filter(t => t.status === 'categorized');
+
+      function openCategorizeModal(tx) {
+        setSelectedTx(tx);
+        setSplits(tx.splits && tx.splits.length > 0 ? tx.splits : [{ categoryId: '', amount: tx.amount }]);
+        setShowNewCategoryForm(false);
+      }
+
+      function closeCategorizeModal() {
+        setSelectedTx(null);
+        setSplits([]);
+        setShowNewCategoryForm(false);
+      }
+
+      async function createCategoryInModal() {
+        if (!newCategoryName) return;
+        try {
+          const res = await fetch(API_BASE + '/categories', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: newCategoryName, color: '#3B82F6' })
+          });
+          const newCat = await res.json();
+          setLocalCategories([...localCategories, newCat]);
+          setNewCategoryName('');
+          setShowNewCategoryForm(false);
+        } catch (err) {
+          console.error('Error:', err);
+        }
+      }
+
+      function addSplit() {
+        const remainingAmount = selectedTx.amount - splits.reduce((sum, s) => sum + (parseFloat(s.amount) || 0), 0);
+        setSplits([...splits, { categoryId: '', amount: remainingAmount > 0 ? remainingAmount : 0 }]);
+      }
+
+      function removeSplit(index) {
+        const newSplits = splits.filter((_, i) => i !== index);
+
+        // Recalculer le dernier split après suppression
+        if (newSplits.length > 0) {
+          if (newSplits.length === 1) {
+            // Si une seule ligne, elle doit avoir le montant total
+            newSplits[0].amount = selectedTx.amount;
+          } else {
+            // Sinon, recalculer le dernier split
+            const allocated = newSplits
+              .slice(0, -1)
+              .reduce((sum, s) => sum + (parseFloat(s.amount) || 0), 0);
+            const remaining = selectedTx.amount - allocated;
+            newSplits[newSplits.length - 1].amount = Math.max(0, remaining);
+          }
+        }
+
+        setSplits(newSplits);
+      }
+
+      function updateSplit(index, field, value) {
+        const newSplits = [...splits];
+        const isLastSplit = index === newSplits.length - 1;
+
+        // Le dernier split ne peut pas être changé manuellement
+        if (isLastSplit && field === 'amount') return;
+
+        if (field === 'amount') {
+          newSplits[index] = { ...newSplits[index], amount: parseFloat(value) || 0 };
+        } else {
+          newSplits[index] = { ...newSplits[index], [field]: value };
+        }
+
+        // Recalculer toujours le dernier split
+        const allocated = newSplits
+          .slice(0, -1)
+          .reduce((sum, s) => sum + (parseFloat(s.amount) || 0), 0);
+        const remaining = selectedTx.amount - allocated;
+        newSplits[newSplits.length - 1].amount = Math.max(0, remaining);
+
+        setSplits(newSplits);
+      }
+
+      async function saveCategorization() {
+        if (selectedTx.id === 'demo-1') {
+          alert('C\'est une transaction de démonstration. Créez une vraie transaction pour tester!');
+          return;
+        }
+        try {
+          await fetch(API_BASE + '/transactions/' + selectedTx.id + '/categorize', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ splits })
+          });
+          closeCategorizeModal();
+          onRefresh();
+        } catch (err) {
+          console.error('Error:', err);
+        }
+      }
+
+      const totalAllocated = splits.reduce((sum, s) => sum + (parseFloat(s.amount) || 0), 0);
+      const isBalanced = Math.abs(totalAllocated - selectedTx?.amount) < 0.01;
 
       return e('div', { className: 'space-y-6' },
         e('div', { className: 'bg-blue-50 border border-blue-200 rounded-lg p-4' },
@@ -162,15 +292,145 @@
           e('h3', { className: 'text-lg font-semibold mb-4' }, 'À catégoriser'),
           e('div', {},
             pending.map(tx =>
-              e('div', { key: tx.id, className: 'border-b pb-4 mb-4' },
+              e('div', { key: tx.id, className: 'border-b pb-4 mb-4 last:border-b-0' },
                 e('div', { className: 'flex justify-between items-start' },
+                  e('div', {},
+                    e('div', { className: 'font-semibold' }, tx.merchant + (tx.id === 'demo-1' ? ' 🎯 DEMO' : '')),
+                    e('div', { className: 'text-sm text-gray-500' }, new Date(tx.transaction_date).toLocaleDateString('fr'))
+                  ),
+                  e('div', { className: 'flex gap-3 items-center' },
+                    e('div', { className: 'text-2xl font-bold text-blue-600' }, tx.amount.toFixed(2) + '€'),
+                    e('button', {
+                      onClick: () => openCategorizeModal(tx),
+                      className: 'bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600'
+                    }, '📂 Catégoriser')
+                  )
+                )
+              )
+            )
+          )
+        ),
+        categorized.length > 0 && e('div', { className: 'bg-white rounded-lg shadow p-6' },
+          e('h3', { className: 'text-lg font-semibold mb-4' }, '✅ Transactions catégorisées'),
+          e('div', {},
+            categorized.map(tx =>
+              e('div', { key: tx.id, className: 'border-b pb-4 mb-4 last:border-b-0' },
+                e('div', { className: 'flex justify-between items-start mb-2' },
                   e('div', {},
                     e('div', { className: 'font-semibold' }, tx.merchant),
                     e('div', { className: 'text-sm text-gray-500' }, new Date(tx.transaction_date).toLocaleDateString('fr'))
                   ),
-                  e('div', { className: 'text-2xl font-bold text-blue-600' }, tx.amount.toFixed(2) + '€')
+                  e('div', { className: 'flex gap-3 items-center' },
+                    e('div', { className: 'text-2xl font-bold text-green-600' }, tx.amount.toFixed(2) + '€'),
+                    e('button', {
+                      onClick: () => openCategorizeModal(tx),
+                      className: 'bg-amber-500 text-white px-3 py-1 rounded text-sm hover:bg-amber-600'
+                    }, '✏️ Modifier')
+                  )
+                ),
+                tx.splits && tx.splits.length > 0 && e('div', { className: 'bg-gray-50 rounded p-2 text-sm space-y-1' },
+                  tx.splits.map((split, idx) =>
+                    e('div', { key: idx, className: 'flex justify-between' },
+                      e('span', { className: 'text-gray-700' }, split.category_name || 'Catégorie'),
+                      e('span', { className: 'font-semibold' }, split.amount.toFixed(2) + '€')
+                    )
+                  )
                 )
               )
+            )
+          )
+        ),
+        selectedTx && e('div', { className: 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50' },
+          e('div', { className: 'bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 p-6' },
+            e('h3', { className: 'text-xl font-semibold mb-4' }, '📂 Catégoriser: ' + selectedTx.merchant),
+            e('div', { className: 'bg-gray-50 p-4 rounded mb-4' },
+              e('div', { className: 'flex justify-between' },
+                e('span', {}, 'Montant total:'),
+                e('span', { className: 'font-bold' }, selectedTx.amount.toFixed(2) + '€')
+              )
+            ),
+            e('div', { className: 'space-y-3 mb-6 max-h-64 overflow-y-auto' },
+              splits.map((split, idx) => {
+                const isLastSplit = idx === splits.length - 1;
+                return e('div', { key: idx, className: 'border rounded p-3 bg-gray-50' },
+                  e('div', { className: 'flex gap-3' },
+                    e('select', {
+                      value: split.categoryId,
+                      onChange: (evt) => updateSplit(idx, 'categoryId', evt.target.value),
+                      className: 'flex-1 border rounded px-2 py-1',
+                      required: true
+                    },
+                      e('option', { value: '' }, '-- Choisir catégorie --'),
+                      localCategories.map(cat =>
+                        e('option', { key: cat.id, value: cat.id }, cat.name)
+                      )
+                    ),
+                    e('input', {
+                      type: 'number',
+                      value: split.amount,
+                      onChange: (evt) => updateSplit(idx, 'amount', evt.target.value),
+                      step: '0.01',
+                      min: '0',
+                      className: isLastSplit ? 'w-24 border rounded px-2 py-1 bg-gray-200 cursor-not-allowed' : 'w-24 border rounded px-2 py-1',
+                      disabled: isLastSplit
+                    }),
+                    e('span', { className: 'text-gray-600 px-2 py-1' }, '€'),
+                    isLastSplit && e('span', { className: 'text-xs text-gray-500 px-2 py-1' }, 'auto'),
+                    splits.length > 1 && !isLastSplit && e('button', {
+                      onClick: () => removeSplit(idx),
+                      className: 'text-red-500 hover:text-red-700'
+                    }, '🗑️')
+                  )
+                );
+              })
+            ),
+            showNewCategoryForm && e('div', { className: 'border rounded p-3 bg-blue-50 mb-6' },
+              e('div', { className: 'text-sm font-semibold mb-2' }, 'Créer une nouvelle catégorie'),
+              e('div', { className: 'flex gap-2 mb-2' },
+                e('input', {
+                  type: 'text',
+                  value: newCategoryName,
+                  onChange: (evt) => setNewCategoryName(evt.target.value),
+                  placeholder: 'Nom de la catégorie',
+                  className: 'flex-1 border rounded px-2 py-1',
+                  autoFocus: true
+                }),
+                e('button', {
+                  onClick: createCategoryInModal,
+                  className: 'bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600'
+                }, 'Créer'),
+                e('button', {
+                  onClick: () => setShowNewCategoryForm(false),
+                  className: 'bg-gray-300 text-gray-900 px-3 py-1 rounded text-sm hover:bg-gray-400'
+                }, 'Annuler')
+              )
+            ),
+            e('div', { className: 'flex justify-between items-center mb-6 p-3 bg-blue-50 rounded' },
+              e('span', {}, 'Alloué:'),
+              e('span', { className: isBalanced ? 'font-bold text-green-600' : 'font-bold text-red-600' },
+                totalAllocated.toFixed(2) + '€ / ' + selectedTx.amount.toFixed(2) + '€'
+              )
+            ),
+            e('div', { className: 'flex gap-3 justify-end' },
+              !showNewCategoryForm && e('button', {
+                onClick: () => setShowNewCategoryForm(true),
+                className: 'bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600'
+              }, '+ Catégorie'),
+              !showNewCategoryForm && e('button', {
+                onClick: addSplit,
+                className: 'bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500'
+              }, '+ Split'),
+              e('button', {
+                onClick: closeCategorizeModal,
+                className: 'bg-gray-300 text-gray-900 px-4 py-2 rounded hover:bg-gray-400'
+              }, 'Annuler'),
+              e('button', {
+                onClick: saveCategorization,
+                disabled: !isBalanced || splits.some(s => !s.categoryId),
+                className: isBalanced && !splits.some(s => !s.categoryId)
+                  ? 'bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600'
+                  : 'bg-gray-300 text-gray-500 px-4 py-2 rounded cursor-not-allowed'
+              }, '✅ Sauvegarder')
             )
           )
         )
