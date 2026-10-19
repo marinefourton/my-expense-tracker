@@ -14,7 +14,7 @@ router.get('/stats', async (req, res) => {
     // Total spent this month
     const totalSpent = await dbGet(
       `SELECT SUM(amount) as total FROM transactions
-       WHERE user_id = ? AND transaction_date >= ? AND transaction_date <= ?`,
+       WHERE user_id = $1 AND transaction_date >= $2 AND transaction_date <= $3`,
       [userId, monthStart, monthEnd]
     );
 
@@ -25,8 +25,8 @@ router.get('/stats', async (req, res) => {
        JOIN categories c ON bs.category_id = c.id
        JOIN transactions t ON bs.transaction_id = t.id
        LEFT JOIN budgets b ON c.id = b.category_id
-       WHERE t.user_id = ? AND t.transaction_date >= ? AND t.transaction_date <= ?
-       GROUP BY c.id
+       WHERE t.user_id = $1 AND t.transaction_date >= $2 AND t.transaction_date <= $3
+       GROUP BY c.id, c.name, c.color, b.limit_amount
        ORDER BY spent DESC`,
       [userId, monthStart, monthEnd]
     );
@@ -36,7 +36,7 @@ router.get('/stats', async (req, res) => {
 
     // Pending transactions count
     const pending = await dbGet(
-      'SELECT COUNT(*) as count FROM transactions WHERE user_id = ? AND status = ?',
+      'SELECT COUNT(*) as count FROM transactions WHERE user_id = $1 AND status = $2',
       [userId, 'pending']
     );
 

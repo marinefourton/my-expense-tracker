@@ -9,7 +9,7 @@ router.get('/', async (req, res) => {
   try {
     const userId = req.userId;
     const categories = await dbAll(
-      'SELECT * FROM categories WHERE user_id = ? ORDER BY name',
+      'SELECT * FROM categories WHERE user_id = $1 ORDER BY name',
       [userId]
     );
     res.json(categories);
@@ -26,7 +26,7 @@ router.get('/with-budgets', async (req, res) => {
       `SELECT c.*, b.limit_amount, b.current_month_spent, b.id as budget_id
        FROM categories c
        LEFT JOIN budgets b ON c.id = b.category_id
-       WHERE c.user_id = ?
+       WHERE c.user_id = $1
        ORDER BY c.name`,
       [userId]
     );
@@ -48,7 +48,7 @@ router.post('/', async (req, res) => {
 
     const categoryId = uuid();
     await dbRun(
-      'INSERT INTO categories (id, user_id, name, color) VALUES (?, ?, ?, ?)',
+      'INSERT INTO categories (id, user_id, name, color) VALUES ($1, $2, $3, $4)',
       [categoryId, userId, name, color || '#3B82F6']
     );
 
@@ -65,7 +65,7 @@ router.put('/:id', async (req, res) => {
     const { name, color } = req.body;
 
     await dbRun(
-      'UPDATE categories SET name = ?, color = ? WHERE id = ?',
+      'UPDATE categories SET name = $1, color = $2 WHERE id = $3',
       [name, color, id]
     );
 
@@ -79,9 +79,9 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    await dbRun('DELETE FROM budget_splits WHERE category_id = ?', [id]);
-    await dbRun('DELETE FROM budgets WHERE category_id = ?', [id]);
-    await dbRun('DELETE FROM categories WHERE id = ?', [id]);
+    await dbRun('DELETE FROM budget_splits WHERE category_id = $1', [id]);
+    await dbRun('DELETE FROM budgets WHERE category_id = $1', [id]);
+    await dbRun('DELETE FROM categories WHERE id = $1', [id]);
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -99,17 +99,17 @@ router.post('/:id/budget', async (req, res) => {
     }
 
     // Check if budget exists
-    const existing = await dbGet('SELECT id FROM budgets WHERE category_id = ?', [id]);
+    const existing = await dbGet('SELECT id FROM budgets WHERE category_id = $1', [id]);
 
     if (existing) {
       await dbRun(
-        'UPDATE budgets SET limit_amount = ? WHERE category_id = ?',
+        'UPDATE budgets SET limit_amount = $1 WHERE category_id = $2',
         [limitAmount, id]
       );
     } else {
       const budgetId = uuid();
       await dbRun(
-        'INSERT INTO budgets (id, category_id, limit_amount, current_month_spent) VALUES (?, ?, ?, 0)',
+        'INSERT INTO budgets (id, category_id, limit_amount, current_month_spent) VALUES ($1, $2, $3, 0)',
         [budgetId, id, limitAmount]
       );
     }
