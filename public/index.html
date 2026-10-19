@@ -61,10 +61,53 @@
           ]);
 
           if (statsRes.ok) setStats(await statsRes.json());
-          if (transRes.ok) setTransactions(await transRes.json());
-          if (catRes.ok) setCategories(await catRes.json());
+          let trans = [];
+          if (transRes.ok) {
+            trans = await transRes.json();
+            // Auto-catégoriser les transactions pending avec les mappings
+            trans = await autoCategorizePending(trans);
+          }
+          setTransactions(trans);
+          if (catRes.ok) {
+            const cats = await catRes.json();
+            setCategories(cats);
+          }
         } catch (err) {
           console.error('Error loading data:', err);
+        }
+      }
+
+      async function autoCategorizePending(trans) {
+        try {
+          const pending = trans.filter(t => t.status === 'pending');
+          for (const tx of pending) {
+            try {
+              const mappingsRes = await fetch(API_BASE + '/merchant-mappings/merchant/' + encodeURIComponent(tx.merchant));
+              if (mappingsRes.ok) {
+                const mappings = await mappingsRes.json();
+                if (mappings && mappings.length > 0) {
+                  // Auto-catégoriser
+                  const splits = mappings.map(m => ({
+                    categoryId: m.category_id,
+                    amount: tx.amount / mappings.length
+                  }));
+                  await fetch(API_BASE + '/transactions/' + tx.id + '/categorize', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ splits })
+                  });
+                }
+              }
+            } catch (err) {
+              // Silently fail for individual merchants
+            }
+          }
+          // Recharger les transactions
+          const freshRes = await fetch(API_BASE + '/transactions');
+          return freshRes.ok ? await freshRes.json() : trans;
+        } catch (err) {
+          console.error('Auto-categorization error:', err);
+          return trans;
         }
       }
 
@@ -180,7 +223,7 @@
       const [newCategoryName, setNewCategoryName] = useState('');
       const [selectedEmoji, setSelectedEmoji] = useState('📂');
       const [showNewCategoryForm, setShowNewCategoryForm] = useState(false);
-      const [localCategories, setLocalCategories] = useState(categories);
+      const [rememberMerchant, setRememberMerchant] = useState(false);
 
       const pending = transactions.filter(t => t.status === 'pending');
       const categorized = transactions.filter(t => t.status === 'categorized');
@@ -200,15 +243,14 @@
       async function createCategoryInModal() {
         if (!newCategoryName) return;
         try {
-          const res = await fetch(API_BASE + '/categories', {
+          await fetch(API_BASE + '/categories', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name: newCategoryName, color: '#3B82F6' })
           });
-          const newCat = await res.json();
-          setLocalCategories([...localCategories, newCat]);
           setNewCategoryName('');
           setShowNewCategoryForm(false);
+          onRefresh();
         } catch (err) {
           console.error('Error:', err);
         }
@@ -274,7 +316,23 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ splits })
           });
+
+          // Mémoriser le mapping si demandé
+          if (rememberMerchant) {
+            for (const split of splits) {
+              await fetch(API_BASE + '/merchant-mappings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  merchant: selectedTx.merchant,
+                  categoryId: split.categoryId
+                })
+              });
+            }
+          }
+
           closeCategorizeModal();
+          setRememberMerchant(false);
           onRefresh();
         } catch (err) {
           console.error('Error:', err);
@@ -361,7 +419,7 @@
                       required: true
                     },
                       e('option', { value: '' }, '-- Choisir catégorie --'),
-                      sortByName([...localCategories]).map(cat =>
+                      sortByName([...categories]).map(cat =>
                         e('option', { key: cat.id, value: cat.id }, cat.name)
                       )
                     ),
@@ -410,6 +468,15 @@
               e('span', { className: isBalanced ? 'font-bold text-green-600' : 'font-bold text-red-600' },
                 totalAllocated.toFixed(2) + '€ / ' + selectedTx.amount.toFixed(2) + '€'
               )
+            ),
+            e('div', { className: 'flex items-center gap-2 mb-6 p-3 bg-purple-50 rounded' },
+              e('input', {
+                type: 'checkbox',
+                checked: rememberMerchant,
+                onChange: (evt) => setRememberMerchant(evt.target.checked),
+                className: 'w-4 h-4'
+              }),
+              e('label', { className: 'text-sm' }, '💾 Se souvenir pour ' + selectedTx.merchant)
             ),
             e('div', { className: 'flex gap-3 justify-end' },
               !showNewCategoryForm && e('button', {

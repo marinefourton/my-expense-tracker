@@ -114,6 +114,17 @@ async function createPostgresTables() {
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY(transaction_id) REFERENCES transactions(id),
       FOREIGN KEY(category_id) REFERENCES categories(id)
+    )`,
+
+    `CREATE TABLE IF NOT EXISTS merchant_mappings (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      merchant_name TEXT NOT NULL,
+      category_id TEXT NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY(user_id) REFERENCES users(id),
+      FOREIGN KEY(category_id) REFERENCES categories(id),
+      UNIQUE(user_id, merchant_name, category_id)
     )`
   ];
 
@@ -175,6 +186,17 @@ function createSqliteTables() {
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY(transaction_id) REFERENCES transactions(id),
       FOREIGN KEY(category_id) REFERENCES categories(id)
+    )`,
+
+    `CREATE TABLE IF NOT EXISTS merchant_mappings (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      merchant_name TEXT NOT NULL,
+      category_id TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY(user_id) REFERENCES users(id),
+      FOREIGN KEY(category_id) REFERENCES categories(id),
+      UNIQUE(user_id, merchant_name, category_id)
     )`
   ];
 

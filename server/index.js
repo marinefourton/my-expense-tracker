@@ -13,6 +13,7 @@ import { startAlertChecking } from './alerts.js';
 import transactionsRouter from './routes/transactions.js';
 import categoriesRouter from './routes/categories.js';
 import dashboardRouter from './routes/dashboard.js';
+import merchantMappingsRouter from './routes/merchant-mappings.js';
 
 dotenv.config();
 
@@ -49,6 +50,7 @@ app.use((req, res, next) => {
 app.use('/api/transactions', transactionsRouter);
 app.use('/api/categories', categoriesRouter);
 app.use('/api/dashboard', dashboardRouter);
+app.use('/api/merchant-mappings', merchantMappingsRouter);
 
 // Test route
 app.get('/test', (req, res) => {
