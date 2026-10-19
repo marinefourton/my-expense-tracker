@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      PORT: 5000
+      NODE_ENV: production
+      IMAP_USER: ${IMAP_USER}
+      IMAP_PASSWORD: ${IMAP_PASSWORD}
+      IMAP_HOST: ${IMAP_HOST:-imap.wanadoo.fr}
+      IMAP_PORT: ${IMAP_PORT:-993}
+      EMAIL_FROM: ${EMAIL_FROM:-alertes@caisseepargne.fr}
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped

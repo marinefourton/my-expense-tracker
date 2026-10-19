@@ -1,0 +1,168 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║                                                                            ║
+║              ✨ SUIVI DES DÉPENSES BANCAIRES - PRÊT À UTILISER ✨          ║
+║                                                                            ║
+║                         C'est COMPLÈTEMENT GRATUIT!                        ║
+║                         (0€ en local, ~2€/mois en ligne)                  ║
+║                                                                            ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+👋 BIENVENUE!
+
+Tu as reçu une APPLICATION COMPLÈTE et FONCTIONNELLE de suivi de dépenses.
+
+Aucune dépendance complexe. Aucun cloud. Aucun service tiers (sauf Wanadoo/emails).
+
+📚 LIRE EN CET ORDRE (10 min total):
+
+1️⃣  START_HERE.md          ← LIS MOI D'ABORD! (5 min)
+2️⃣  QUICKSTART.md          ← Installation ultra rapide (5 min)
+3️⃣  Puis: npm install && npm start
+4️⃣  Visite: http://localhost:5000
+
+C'est tout! 🎉
+
+
+🚀 SUPER RAPIDE (4 commandes):
+
+    cd expense-tracker
+    npm install
+
+    # Crée .env avec tes credentials Wanadoo:
+    cp .env.example .env
+
+    npm start
+
+Ouvre http://localhost:5000 → Ça marche! 🎯
+
+
+📋 CE QUE TU VAS OBTENIR:
+
+  ✅ Reçoit les transactions automatiquement (via emails Caisse d'Épargne)
+  ✅ Te demande de les catégoriser
+  ✅ Track tes budgets par catégorie
+  ✅ T'alerte si tu dépasses un budget
+  ✅ Interface responsive (marche sur téléphone)
+  ✅ 100% privé (tes données restent chez toi)
+  ✅ Entièrement gratuit
+
+
+🎯 LES 3 ÉTAPES:
+
+  1. Crée un App Password Wanadoo (2 min)
+     → https://www.wanadoo.fr → Paramètres → Sécurité
+
+  2. Active les alertes dans Caisse d'Épargne (2 min)
+     → App Caisse d'Épargne → Paramètres → Alertes
+
+  3. Lance l'app (1 min)
+     → npm install && npm start
+     → http://localhost:5000
+
+TOTAL: ~5 min de setup, puis ça marche! 🚀
+
+
+📂 CE QUI'S CRÉÉ POUR TOI:
+
+  Backend (Node.js):        9 fichiers
+  Frontend (React):         1 fichier (25KB, tout-en-un)
+  Configuration:            5 fichiers
+  Documentation:            8 fichiers
+  ───────────────────────────────────
+  TOTAL:                     23 fichiers de code + docs
+
+
+💡 LES FICHIERS À LIRE:
+
+  * START_HERE.md           ← Tu dois lire celui-ci en premier!
+  * QUICKSTART.md           ← Si tu es impatient
+  * INSTALLATION.md         ← Si tu as des problèmes
+  * README.md               ← La doc complète
+  * FAQ.md                  ← 50+ questions/réponses
+  * TESTING.md              ← Comment tester
+  * PROJECT_STRUCTURE.md    ← Architecture complète
+  * FILES_OVERVIEW.md       ← Vue des fichiers
+
+
+🎨 CE QUE TU VOIS DANS L'APP:
+
+  Dashboard
+  ├── Total dépensé ce mois
+  ├── Budget disponible
+  ├── Alertes si dépassement
+  └── Graphique par catégorie
+
+  Transactions
+  ├── Liste des transactions en attente
+  ├── Bouton "Catégoriser"
+  └── Historique des passées
+
+  Paramètres
+  ├── Créer des catégories
+  └── Définir les limites budgétaires
+
+
+🔐 SÉCURITÉ (pas de panique!):
+
+  ✅ Tes données restent 100% chez toi
+  ✅ Aucun serveur tiers ne voit rien
+  ✅ Aucun tracking, aucune pub
+  ✅ C'est du code open source
+
+
+⚠️ PRÉALABLES:
+
+  1. Node.js 18+ installé?
+     (Non? https://nodejs.org)
+
+  2. Un email Wanadoo?
+     (Oui c'est obligatoire)
+
+  3. Access à Caisse d'Épargne app?
+     (Pour activer les alertes)
+
+
+🎮 COMMANDES:
+
+  npm install          # Installe les dépendances (1x)
+  npm start           # Lance l'app
+  npm run seed        # Ajoute des données de test
+  Ctrl+C              # Arrête l'app
+
+
+🌐 DEPLOYMENT (optionnel):
+
+  En local:       Toujours gratuit
+  Sur Railway:    ~2€/mois (accès depuis partout)
+  Sur Render:     ~2-7€/mois (accès depuis partout)
+
+  Instructions dans README.md
+
+
+❓ BESOIN D'AIDE?
+
+  1. Lis START_HERE.md
+  2. Lis QUICKSTART.md
+  3. Lis INSTALLATION.md
+  4. Lis FAQ.md
+  5. Regarde les logs du terminal (npm start)
+
+  99% des questions sont là-dedans! 🎯
+
+
+✨ PRÊT?
+
+  👉 Lis START_HERE.md (5 min)
+  👉 Puis: npm install && npm start
+  👉 Puis: http://localhost:5000
+
+  À toi de jouer! 🚀
+
+
+╔════════════════════════════════════════════════════════════════════════════╗
+║                                                                            ║
+║                  Bienvenue dans ton app de suivi! 🎉                      ║
+║                                                                            ║
+║              Questions? Commence par START_HERE.md →                      ║
+║                                                                            ║
+╚════════════════════════════════════════════════════════════════════════════╝

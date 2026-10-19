@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Suivi des Dépenses</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script>
+    const { useState, useEffect } = React;
+    const { createRoot } = ReactDOM;
+    const e = React.createElement;
+
+    const API_BASE = 'http://localhost:5000/api';
+
+    // Extrait le nom après l'emoji pour le tri
+    function extractNameAfterEmoji(name) {
+      // Enlève les emojis au début
+      return name.replace(/^[\p{Emoji}]+\s*/gu, '').trim();
+    }
+
+    function sortByName(arr) {
+      return arr.sort((a, b) => {
+        const nameA = extractNameAfterEmoji(a.name);
+        const nameB = extractNameAfterEmoji(b.name);
+        return nameA.localeCompare(nameB, 'fr');
+      });
+    }
+
+    function App() {
+      const [currentPage, setCurrentPage] = useState(() => {
+        const hash = window.location.hash.slice(1) || 'dashboard';
+        return ['dashboard', 'transactions', 'settings'].includes(hash) ? hash : 'dashboard';
+      });
+      const [stats, setStats] = useState(null);
+      const [transactions, setTransactions] = useState([]);
+      const [categories, setCategories] = useState([]);
+
+      function changePage(page) {
+        setCurrentPage(page);
+        window.location.hash = page;
+      }
+
+      useEffect(() => {
+        loadData();
+        const interval = setInterval(loadData, 30000);
+        return () => clearInterval(interval);
+      }, []);
+
+      async function loadData() {
+        try {
+          const [statsRes, transRes, catRes] = await Promise.all([
+            fetch(API_BASE + '/dashboard/stats'),
+            fetch(API_BASE + '/transactions'),
+            fetch(API_BASE + '/categories/with-budgets')
+          ]);
+
+          if (statsRes.ok) setStats(await statsRes.json());
+          if (transRes.ok) setTransactions(await transRes.json());
+          if (catRes.ok) setCategories(await catRes.json());
+        } catch (err) {
+          console.error('Error loading data:', err);
+        }
+      }
+
+      let content;
+      if (currentPage === 'dashboard') {
+        content = e(Dashboard, { stats, onRefresh: loadData });
+      } else if (currentPage === 'transactions') {
+        content = e(TransactionsPage, { transactions, categories, onRefresh: loadData });
+      } else {
+        content = e(SettingsPage, { categories, onRefresh: loadData });
+      }
+
+      return e('div', { className: 'min-h-screen bg-gray-50' },
+        e('nav', { className: 'bg-white shadow' },
+          e('div', { className: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8' },
+            e('div', { className: 'flex justify-between h-16 items-center' },
+              e('h1', { className: 'text-2xl font-bold text-gray-900' }, '💰 Suivi Dépenses'),
+              e('div', { className: 'flex gap-4' },
+                e('button', {
+                  onClick: () => changePage('dashboard'),
+                  className: currentPage === 'dashboard' ? 'px-4 py-2 rounded bg-blue-500 text-white' : 'px-4 py-2 rounded text-gray-700 hover:bg-gray-100'
+                }, 'Dashboard'),
+                e('button', {
+                  onClick: () => changePage('transactions'),
+                  className: currentPage === 'transactions' ? 'px-4 py-2 rounded bg-blue-500 text-white' : 'px-4 py-2 rounded text-gray-700 hover:bg-gray-100'
+                }, 'Transactions'),
+                e('button', {
+                  onClick: () => changePage('settings'),
+                  className: currentPage === 'settings' ? 'px-4 py-2 rounded bg-blue-500 text-white' : 'px-4 py-2 rounded text-gray-700 hover:bg-gray-100'
+                }, 'Paramètres')
+              )
+            )
+          )
+        ),
+        e('main', { className: 'max-w-7xl mx-auto py-6 sm:px-6 lg:px-8' }, content)
+      );
+    }
+
+    function Dashboard({ stats, onRefresh }) {
+      if (!stats) return e('div', { className: 'text-center py-8' }, 'Chargement...');
+
+      const totalBudget = stats.byCategory.reduce((sum, cat) => sum + (cat.limit_amount || 0), 0);
+      const percentageUsed = totalBudget ? Math.round((stats.totalSpent / totalBudget) * 100) : 0;
+
+      return e('div', { className: 'space-y-6' },
+        e('div', { className: 'grid grid-cols-1 md:grid-cols-3 gap-4' },
+          e('div', { className: 'bg-white rounded-lg shadow p-6' },
+            e('div', { className: 'text-gray-500 text-sm font-medium' }, 'Total ce mois'),
+            e('div', { className: 'text-3xl font-bold text-gray-900' }, stats.totalSpent.toFixed(2) + '€')
+          ),
+          e('div', { className: 'bg-white rounded-lg shadow p-6' },
+            e('div', { className: 'text-gray-500 text-sm font-medium' }, 'Budget total'),
+            e('div', { className: 'text-3xl font-bold text-gray-900' }, totalBudget.toFixed(2) + '€')
+          ),
+          e('div', { className: 'bg-white rounded-lg shadow p-6' },
+            e('div', { className: 'text-gray-500 text-sm font-medium' }, '% utilisé'),
+            e('div', { className: percentageUsed > 100 ? 'text-3xl font-bold text-red-500' : 'text-3xl font-bold text-green-500' }, percentageUsed + '%')
+          )
+        ),
+        e('div', { className: 'bg-white rounded-lg shadow p-6' },
+          e('h3', { className: 'text-lg font-semibold mb-4' }, 'Dépenses par catégorie'),
+          e('div', { className: 'space-y-3' },
+            sortByName([...stats.byCategory]).map(cat => {
+              const percentage = cat.limit_amount ? Math.min((cat.spent / cat.limit_amount) * 100, 100) : 0;
+              return e('div', { key: cat.name },
+                e('div', { className: 'flex justify-between text-sm mb-1' },
+                  e('span', { className: 'font-medium' }, cat.name),
+                  e('span', {}, cat.spent.toFixed(2) + '€' + (cat.limit_amount ? ' / ' + cat.limit_amount.toFixed(2) + '€' : ''))
+                ),
+                e('div', { className: 'w-full bg-gray-200 rounded-full h-2' },
+                  e('div', {
+                    className: percentage > 100 ? 'h-2 rounded-full bg-red-500' : 'h-2 rounded-full bg-blue-500',
+                    style: { width: Math.min(percentage, 100) + '%' }
+                  })
+                )
+              );
+            })
+          )
+        ),
+        e('button', {
+          onClick: onRefresh,
+          className: 'bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600'
+        }, '🔄 Rafraîchir')
+      );
+    }
+
+    function TransactionsPage({ transactions, categories, onRefresh }) {
+      const pending = transactions.filter(t => t.status === 'pending');
+
+      return e('div', { className: 'space-y-6' },
+        e('div', { className: 'bg-blue-50 border border-blue-200 rounded-lg p-4' },
+          e('h3', { className: 'font-semibold text-blue-900' }, '📝 ' + pending.length + ' transactions en attente')
+        ),
+        pending.length > 0 && e('div', { className: 'bg-white rounded-lg shadow p-6' },
+          e('h3', { className: 'text-lg font-semibold mb-4' }, 'À catégoriser'),
+          e('div', {},
+            pending.map(tx =>
+              e('div', { key: tx.id, className: 'border-b pb-4 mb-4' },
+                e('div', { className: 'flex justify-between items-start' },
+                  e('div', {},
+                    e('div', { className: 'font-semibold' }, tx.merchant),
+                    e('div', { className: 'text-sm text-gray-500' }, new Date(tx.transaction_date).toLocaleDateString('fr'))
+                  ),
+                  e('div', { className: 'text-2xl font-bold text-blue-600' }, tx.amount.toFixed(2) + '€')
+                )
+              )
+            )
+          )
+        )
+      );
+    }
+
+    function SettingsPage({ categories, onRefresh }) {
+      const [newCategoryName, setNewCategoryName] = useState('');
+      const [editingId, setEditingId] = useState(null);
+      const [editName, setEditName] = useState('');
+      const [editColor, setEditColor] = useState('#3B82F6');
+
+      async function addCategory() {
+        if (!newCategoryName) return;
+        try {
+          await fetch(API_BASE + '/categories', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: newCategoryName, color: '#3B82F6' })
+          });
+          setNewCategoryName('');
+          onRefresh();
+        } catch (err) {
+          console.error('Error:', err);
+        }
+      }
+
+      async function updateCategory() {
+        if (!editName || !editingId) return;
+        try {
+          await fetch(API_BASE + '/categories/' + editingId, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: editName, color: editColor })
+          });
+          setEditingId(null);
+          onRefresh();
+        } catch (err) {
+          console.error('Error:', err);
+        }
+      }
+
+      async function deleteCategory(id) {
+        if (!confirm('Supprimer cette catégorie?')) return;
+        try {
+          await fetch(API_BASE + '/categories/' + id, { method: 'DELETE' });
+          onRefresh();
+        } catch (err) {
+          console.error('Error:', err);
+        }
+      }
+
+      function startEdit(cat) {
+        setEditingId(cat.id);
+        setEditName(cat.name);
+        setEditColor(cat.color);
+      }
+
+      return e('div', { className: 'space-y-6' },
+        e('div', { className: 'bg-white rounded-lg shadow p-6' },
+          e('h3', { className: 'text-lg font-semibold mb-4' }, 'Ajouter une catégorie'),
+          e('div', { className: 'flex gap-3' },
+            e('input', {
+              type: 'text',
+              value: newCategoryName,
+              onChange: (evt) => setNewCategoryName(evt.target.value),
+              placeholder: 'Nom de la catégorie',
+              className: 'flex-1 border rounded px-3 py-2'
+            }),
+            e('button', {
+              onClick: addCategory,
+              className: 'bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600'
+            }, 'Ajouter')
+          )
+        ),
+        e('div', { className: 'bg-white rounded-lg shadow p-6' },
+          e('h3', { className: 'text-lg font-semibold mb-4' }, 'Catégories'),
+          e('div', { className: 'space-y-3' },
+            sortByName([...categories]).map(cat => {
+              if (editingId === cat.id) {
+                return e('div', { key: cat.id, className: 'border rounded p-3 bg-gray-50' },
+                  e('div', { className: 'flex gap-3 mb-2' },
+                    e('input', {
+                      type: 'color',
+                      value: editColor,
+                      onChange: (evt) => setEditColor(evt.target.value),
+                      className: 'w-12 border rounded'
+                    }),
+                    e('input', {
+                      type: 'text',
+                      value: editName,
+                      onChange: (evt) => setEditName(evt.target.value),
+                      className: 'flex-1 border rounded px-3 py-1'
+                    })
+                  ),
+                  e('div', { className: 'flex gap-2' },
+                    e('button', {
+                      onClick: updateCategory,
+                      className: 'bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600'
+                    }, 'Sauvegarder'),
+                    e('button', {
+                      onClick: () => setEditingId(null),
+                      className: 'bg-gray-400 text-white px-3 py-1 rounded text-sm hover:bg-gray-500'
+                    }, 'Annuler')
+                  )
+                );
+              }
+              return e('div', { key: cat.id, className: 'flex items-center justify-between p-2 border rounded hover:bg-gray-50' },
+                e('div', { className: 'flex items-center gap-3' },
+                  e('div', {
+                    className: 'w-4 h-4 rounded',
+                    style: { backgroundColor: cat.color }
+                  }),
+                  e('span', {}, cat.name)
+                ),
+                e('div', { className: 'flex gap-2' },
+                  e('button', {
+                    onClick: () => startEdit(cat),
+                    className: 'text-blue-500 text-sm hover:underline'
+                  }, '✏️ Éditer'),
+                  e('button', {
+                    onClick: () => deleteCategory(cat.id),
+                    className: 'text-red-500 text-sm hover:underline'
+                  }, '🗑️ Supprimer')
+                )
+              );
+            })
+          )
+        )
+      );
+    }
+
+    const root = createRoot(document.getElementById('root'));
+    root.render(e(App));
+  </script>
+</body>
+</html>
