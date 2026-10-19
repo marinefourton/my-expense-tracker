@@ -18,16 +18,16 @@
 
     const API_BASE = '/api';
 
-    // Extrait le nom après l'emoji pour le tri
+    // Extrait le nom après les emojis pour le tri
     function extractNameAfterEmoji(name) {
-      // Enlève les emojis au début
-      return name.replace(/^[\p{Emoji}]+\s*/gu, '').trim();
+      // Enlève tous les caractères emojis/spéciaux au début
+      return name.replace(/^[\p{Emoji_Presentation}\p{Emoji}\s️]+/gu, '').trim();
     }
 
     function sortByName(arr) {
       return arr.sort((a, b) => {
-        const nameA = extractNameAfterEmoji(a.name);
-        const nameB = extractNameAfterEmoji(b.name);
+        const nameA = extractNameAfterEmoji(a.name).toLowerCase();
+        const nameB = extractNameAfterEmoji(b.name).toLowerCase();
         return nameA.localeCompare(nameB, 'fr');
       });
     }
@@ -361,7 +361,7 @@
                       required: true
                     },
                       e('option', { value: '' }, '-- Choisir catégorie --'),
-                      localCategories.map(cat =>
+                      sortByName([...localCategories]).map(cat =>
                         e('option', { key: cat.id, value: cat.id }, cat.name)
                       )
                     ),
