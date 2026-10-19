@@ -16,7 +16,7 @@ export async function checkBudgetAlerts() {
        JOIN categories c ON b.category_id = c.id
        LEFT JOIN budget_splits bs ON bs.category_id = b.category_id
        LEFT JOIN transactions t ON bs.transaction_id = t.id
-       WHERE t.transaction_date >= ? AND t.transaction_date <= ?
+       WHERE t.transaction_date >= $1 AND t.transaction_date <= $2
        GROUP BY b.id, b.category_id, c.name, b.limit_amount`,
       [monthStart, monthEnd]
     );
@@ -55,7 +55,7 @@ export async function checkBudgetAlerts() {
 
       // Update budget table
       await dbRun(
-        'UPDATE budgets SET current_month_spent = ? WHERE id = ?',
+        'UPDATE budgets SET current_month_spent = $1 WHERE id = $2',
         [budget.current_spent, budget.id]
       );
     }
