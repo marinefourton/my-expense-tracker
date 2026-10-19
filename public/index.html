@@ -509,6 +509,8 @@
       const [editingId, setEditingId] = useState(null);
       const [editName, setEditName] = useState('');
       const [editColor, setEditColor] = useState('#3B82F6');
+      const [editBudgetLimit, setEditBudgetLimit] = useState('');
+      const [editSkyIsTheLimit, setEditSkyIsTheLimit] = useState(false);
 
       async function addCategory() {
         if (!newCategoryName) return;
@@ -528,12 +530,24 @@
       async function updateCategory() {
         if (!editName || !editingId) return;
         try {
+          // Mettre à jour la catégorie
           await fetch(API_BASE + '/categories/' + editingId, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name: editName, color: editColor })
           });
+
+          // Mettre à jour le budget
+          if (!editSkyIsTheLimit && editBudgetLimit) {
+            await fetch(API_BASE + '/categories/' + editingId + '/budget', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ limitAmount: parseFloat(editBudgetLimit) })
+            });
+          }
+
           setEditingId(null);
+          setEditSkyIsTheLimit(false);
           onRefresh();
         } catch (err) {
           console.error('Error:', err);
@@ -554,6 +568,8 @@
         setEditingId(cat.id);
         setEditName(cat.name);
         setEditColor(cat.color);
+        setEditBudgetLimit(cat.limit_amount || '');
+        setEditSkyIsTheLimit(!cat.limit_amount);
       }
 
       return e('div', { className: 'space-y-6' },
@@ -578,30 +594,71 @@
           e('div', { className: 'space-y-3' },
             sortByName([...categories]).map(cat => {
               if (editingId === cat.id) {
-                return e('div', { key: cat.id, className: 'border rounded p-3 bg-gray-50' },
-                  e('div', { className: 'flex gap-3 mb-2' },
+                return e('div', { key: cat.id, className: 'border-2 border-blue-400 rounded-lg p-4 bg-blue-50' },
+                  e('h4', { className: 'font-semibold text-lg mb-4 text-gray-900' }, '✏️ Éditer la catégorie'),
+
+                  // Couleur
+                  e('div', { className: 'mb-4' },
+                    e('label', { className: 'block text-sm font-medium text-gray-700 mb-2' }, 'Couleur'),
                     e('input', {
                       type: 'color',
                       value: editColor,
                       onChange: (evt) => setEditColor(evt.target.value),
-                      className: 'w-12 border rounded'
-                    }),
+                      className: 'w-20 h-12 border rounded cursor-pointer'
+                    })
+                  ),
+
+                  // Nom
+                  e('div', { className: 'mb-4' },
+                    e('label', { className: 'block text-sm font-medium text-gray-700 mb-2' }, 'Nom'),
                     e('input', {
                       type: 'text',
                       value: editName,
                       onChange: (evt) => setEditName(evt.target.value),
-                      className: 'flex-1 border rounded px-3 py-1'
+                      className: 'w-full border rounded px-3 py-2'
                     })
                   ),
-                  e('div', { className: 'flex gap-2' },
-                    e('button', {
-                      onClick: updateCategory,
-                      className: 'bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600'
-                    }, 'Sauvegarder'),
+
+                  // Sky is the limit switch
+                  e('div', { className: 'mb-4 p-3 bg-purple-100 rounded' },
+                    e('div', { className: 'flex items-center gap-3' },
+                      e('input', {
+                        type: 'checkbox',
+                        checked: editSkyIsTheLimit,
+                        onChange: (evt) => setEditSkyIsTheLimit(evt.target.checked),
+                        className: 'w-5 h-5 cursor-pointer'
+                      }),
+                      e('label', { className: 'text-sm font-medium text-gray-700 cursor-pointer' }, '🚀 Sky is the limit')
+                    )
+                  ),
+
+                  // Budget limite
+                  !editSkyIsTheLimit && e('div', { className: 'mb-4' },
+                    e('label', { className: 'block text-sm font-medium text-gray-700 mb-2' }, 'Budget limite mensuel'),
+                    e('div', { className: 'flex gap-2' },
+                      e('input', {
+                        type: 'number',
+                        value: editBudgetLimit,
+                        onChange: (evt) => setEditBudgetLimit(evt.target.value),
+                        step: '0.01',
+                        min: '0',
+                        placeholder: '0.00',
+                        className: 'flex-1 border rounded px-3 py-2'
+                      }),
+                      e('span', { className: 'text-gray-600 px-3 py-2 font-semibold' }, '€')
+                    )
+                  ),
+
+                  // Boutons
+                  e('div', { className: 'flex gap-2 justify-end' },
                     e('button', {
                       onClick: () => setEditingId(null),
-                      className: 'bg-gray-400 text-white px-3 py-1 rounded text-sm hover:bg-gray-500'
-                    }, 'Annuler')
+                      className: 'bg-gray-300 text-gray-900 px-4 py-2 rounded hover:bg-gray-400'
+                    }, 'Annuler'),
+                    e('button', {
+                      onClick: updateCategory,
+                      className: 'bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600'
+                    }, '✅ Sauvegarder')
                   )
                 );
               }
